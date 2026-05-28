@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,51 +6,30 @@
 
 @layer base {
   html, body {
-    @apply antialiased text-gray-300 bg-black min-h-[100dvh] relative overflow-x-hidden selection:bg-white selection:text-black;
+    @apply antialiased text-slate-800 bg-slate-50 dark:bg-slate-900 dark:text-slate-100 min-h-[100dvh] relative overflow-x-hidden;
     font-family: 'Inter', sans-serif;
-  }
-  
-  /* SpaceX Pure Black Background, no grid, no glow */
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: #000000;
-    z-index: -2;
-    pointer-events: none;
-  }
-
-  /* Headings: Stark, wide, uppercase */
-  h1, h2, h3, h4, h5, h6 {
-    @apply uppercase tracking-widest text-white font-medium;
   }
 }
 
 /* Hide scrollbar for a more app-like feel */
 ::-webkit-scrollbar {
-  width: 2px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-white/20;
+  @apply bg-slate-300 dark:bg-slate-700 rounded-full;
 }
 
-/* SpaceX Glass Panel - extremely minimal */
+/* Standard Glass Panel with soft shadows and rounded corners */
 .glass-panel {
-  @apply bg-[#111111]/80 backdrop-blur-md border border-white/10 relative overflow-hidden rounded-none;
+  @apply bg-white dark:bg-slate-800 shadow-md border border-slate-200 dark:border-slate-700 rounded-2xl;
 }
 
-/* SpaceX Inputs - Thin borders, flat */
+/* Standard Inputs */
 input, textarea, select {
-  @apply bg-transparent border-b border-white/30 focus:border-white focus:outline-none transition-colors duration-300 rounded-none px-0 py-2;
+  @apply bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-200 rounded-lg px-3 py-2;
 }
 
-/* Override Tailwind bg-primary for primary buttons to create Ghost Buttons */
-button.bg-primary {
-  @apply bg-transparent border border-white text-white hover:bg-white hover:text-black transition-all duration-300 uppercase tracking-widest font-semibold;
-}
-button.bg-slate-900 {
-  @apply bg-[#111111] border border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300 uppercase tracking-widest font-semibold;
-}
+/* Let default Tailwind buttons handle backgrounds, remove Ghost overrides */
