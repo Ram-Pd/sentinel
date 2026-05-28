@@ -3,7 +3,7 @@ import { UserPlus, Phone, MessageSquare, Shield, ShieldOff, MoreVertical, Edit2,
 import { useApp } from '../context/AppContext';
 
 export const Contacts = () => {
-  const { contacts, setContacts } = useApp();
+  const { contacts, addContact, updateContact, deleteContact } = useApp();
   const [showAddForm, setShowAddForm] = useState(false);
   const [newContact, setNewContact] = useState({ name: '', phone: '', relationship: 'friend', isTracking: true });
   
@@ -11,15 +11,21 @@ export const Contacts = () => {
   const [editForm, setEditForm] = useState(null);
 
   const toggleTracking = (id) => {
-    setContacts(contacts.map(c => 
-      c.id === id ? { ...c, isTracking: !c.isTracking } : c
-    ));
+    const contact = contacts.find(c => c.id === id);
+    if (contact) {
+      updateContact(id, { is_tracking: !contact.is_tracking });
+    }
   };
 
-  const handleAddContact = (e) => {
+  const handleAddContact = async (e) => {
     e.preventDefault();
     if (newContact.name && newContact.phone) {
-      setContacts([...contacts, { ...newContact, id: Date.now(), lastSeen: 'Just now' }]);
+      await addContact({ 
+        name: newContact.name, 
+        phone: newContact.phone, 
+        relationship: newContact.relationship, 
+        is_tracking: newContact.isTracking 
+      });
       setShowAddForm(false);
       setNewContact({ name: '', phone: '', relationship: 'friend', isTracking: true });
     }
@@ -30,8 +36,12 @@ export const Contacts = () => {
     setEditForm({ ...contact });
   };
 
-  const saveEdit = () => {
-    setContacts(contacts.map(c => c.id === editingId ? editForm : c));
+  const saveEdit = async () => {
+    await updateContact(editingId, {
+      name: editForm.name,
+      phone: editForm.phone,
+      relationship: editForm.relationship
+    });
     setEditingId(null);
   };
 
@@ -39,8 +49,8 @@ export const Contacts = () => {
     setEditingId(null);
   };
 
-  const deleteContact = (id) => {
-    setContacts(contacts.filter(c => c.id !== id));
+  const handleDeleteContact = async (id) => {
+    await deleteContact(id);
     setEditingId(null);
   };
 
@@ -125,7 +135,7 @@ export const Contacts = () => {
                   <option value="work">Work/Colleague</option>
                 </select>
                 <button 
-                  onClick={() => deleteContact(contact.id)}
+                  onClick={() => handleDeleteContact(contact.id)}
                   className="w-full py-2 text-sm font-medium text-danger bg-danger/10 rounded-xl mt-2"
                 >
                   Delete Contact
@@ -164,12 +174,12 @@ export const Contacts = () => {
                   <button
                     onClick={() => toggleTracking(contact.id)}
                     className={`flex items-center space-x-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                      contact.isTracking 
+                      contact.is_tracking 
                         ? 'bg-primary/10 text-primary' 
                         : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
                     }`}
                   >
-                    {contact.isTracking ? (
+                    {contact.is_tracking ? (
                       <>
                         <Shield size={14} />
                         <span>Tracking Active</span>

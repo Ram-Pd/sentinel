@@ -9,9 +9,17 @@ import { PlanRoute } from './pages/PlanRoute';
 import { Contacts } from './pages/Contacts';
 import { Profile } from './pages/Profile';
 
-// Protected Route Component
 const ProtectedRoute = ({ children }) => {
-  const { user } = useApp();
+  const { user, loadingAuth } = useApp();
+  
+  if (loadingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+  
   if (!user) {
     return <Navigate to="/login" replace />;
   }
@@ -47,7 +55,7 @@ function App() {
   return (
     <AppProvider>
       <Router>
-        <div className="bg-slate-200 dark:bg-slate-900 min-h-screen sm:py-8 font-sans transition-colors duration-300">
+        <div className="min-h-screen sm:py-8 font-sans transition-colors duration-300 relative z-0">
           <AppContent />
         </div>
       </Router>

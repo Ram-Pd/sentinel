@@ -9,19 +9,30 @@ export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const { login, register } = useApp();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (email && password) {
-      if (isLogin) {
-        login(email);
-        navigate('/');
-      } else {
-        register(name || 'New User', email);
-        navigate('/profile', { state: { isNewUser: true } });
+    setError(null);
+    setLoading(true);
+
+    try {
+      if (email && password) {
+        if (isLogin) {
+          await login(email, password);
+          navigate('/');
+        } else {
+          await register(name || 'New User', email, password);
+          navigate('/profile', { state: { isNewUser: true } });
+        }
       }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -59,6 +70,11 @@ export const Login = () => {
           className="glass-panel rounded-3xl p-6 shadow-xl shadow-slate-200/50 dark:shadow-none"
         >
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="bg-red-500/10 text-red-500 text-sm p-3 rounded-xl border border-red-500/20 text-center">
+                {error}
+              </div>
+            )}
             {!isLogin && (
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-slate-500 uppercase">Full Name</label>
@@ -111,10 +127,11 @@ export const Login = () => {
 
             <button
               type="submit"
-              className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-4 rounded-xl flex items-center justify-center space-x-2 transition-transform active:scale-95 mt-6 shadow-lg shadow-primary/30"
+              disabled={loading}
+              className="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-4 rounded-xl flex items-center justify-center space-x-2 transition-transform active:scale-95 mt-6 shadow-lg shadow-primary/30 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              <span>{isLogin ? 'Sign In' : 'Create Account'}</span>
-              <ArrowRight size={18} />
+              <span>{loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}</span>
+              {!loading && <ArrowRight size={18} />}
             </button>
           </form>
 

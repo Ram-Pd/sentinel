@@ -5,8 +5,35 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 
 export const Dashboard = () => {
-  const { user, activeJourney, history, triggerSOS, isLocationShared, toggleLocationShare } = useApp();
+  const { user, activeJourney, history, triggerSOS, isLocationShared, toggleLocationShare, contacts } = useApp();
   const navigate = useNavigate();
+
+  const handleShareLocation = () => {
+    if (!isLocationShared) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            const mapLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+            
+            const activeContacts = contacts.filter(c => c.is_tracking || c.isTracking);
+            if (activeContacts.length > 0) {
+              const phoneNumbers = activeContacts.map(c => c.phone).join(',');
+              const message = `I am sharing my live location with you for safety: ${mapLink}`;
+              window.location.href = `sms:${phoneNumbers}?body=${encodeURIComponent(message)}`;
+            } else {
+              alert("Please add trusted contacts first!");
+            }
+          },
+          (error) => {
+            console.error("Error getting location:", error);
+            alert("Could not access location.");
+          }
+        );
+      }
+    }
+    toggleLocationShare();
+  };
 
   const currentTime = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
@@ -17,7 +44,7 @@ export const Dashboard = () => {
         <div>
           <p className="text-sm text-slate-500 font-medium">Good evening, {currentTime}</p>
           <h1 className="text-2xl font-display font-bold text-slate-900 dark:text-white">
-            Hi, {user?.name.split(' ')[0]}
+            Hi, {user?.name ? user.name.split(' ')[0] : 'User'}
           </h1>
         </div>
         <img 
@@ -112,7 +139,7 @@ export const Dashboard = () => {
 
           <motion.button 
             whileTap={{ scale: 0.98 }}
-            onClick={toggleLocationShare}
+            onClick={handleShareLocation}
             className={`col-span-2 p-4 rounded-2xl flex items-center justify-center space-x-3 transition-all ${
               isLocationShared 
                 ? 'bg-emerald-500/10 border-2 border-emerald-500 text-emerald-600 dark:text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]' 

@@ -23,8 +23,8 @@ export const Profile = () => {
     navigate('/login');
   };
 
-  const handleSaveProfile = () => {
-    updateUser(editForm);
+  const handleSaveProfile = async () => {
+    await updateUser(editForm);
     setIsEditing(false);
   };
 
@@ -81,8 +81,8 @@ export const Profile = () => {
               <div className="relative">
                 <Droplet className="absolute left-3 top-1/2 -translate-y-1/2 text-danger opacity-70" size={16} />
                 <select
-                  value={editForm.bloodGroup || ''}
-                  onChange={(e) => setEditForm({...editForm, bloodGroup: e.target.value})}
+                  value={editForm.blood_group || ''}
+                  onChange={(e) => setEditForm({...editForm, blood_group: e.target.value})}
                   className="w-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm outline-none focus:border-primary dark:text-white transition-colors appearance-none"
                 >
                   <option value="">Select Blood Group</option>
@@ -131,8 +131,8 @@ export const Profile = () => {
               <textarea
                 rows="2"
                 placeholder="E.g., Allergies, chronic conditions"
-                value={editForm.emergencyMedical || ''}
-                onChange={(e) => setEditForm({...editForm, emergencyMedical: e.target.value})}
+                value={editForm.emergency_medical || ''}
+                onChange={(e) => setEditForm({...editForm, emergency_medical: e.target.value})}
                 className="w-full mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm outline-none focus:border-primary dark:text-white transition-colors resize-none"
               ></textarea>
             </div>
@@ -168,9 +168,9 @@ export const Profile = () => {
             <h2 className="text-xl font-bold dark:text-white">{user?.name}</h2>
             <p className="text-sm text-slate-500">{user?.phone}</p>
             <div className="flex space-x-2 mt-1">
-              {user?.bloodGroup && (
+              {user?.blood_group && (
                 <span className="text-xs font-bold bg-danger/10 text-danger px-2 py-0.5 rounded flex items-center">
-                  <Droplet size={10} className="mr-1" fill="currentColor" /> {user.bloodGroup}
+                  <Droplet size={10} className="mr-1" fill="currentColor" /> {user.blood_group}
                 </span>
               )}
             </div>

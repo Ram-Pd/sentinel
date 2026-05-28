@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,37 +6,51 @@
 
 @layer base {
   html, body {
-    @apply antialiased text-slate-900 bg-slate-50 dark:bg-slate-950 dark:text-slate-50 min-h-[100dvh] relative;
+    @apply antialiased text-gray-300 bg-black min-h-[100dvh] relative overflow-x-hidden selection:bg-white selection:text-black;
     font-family: 'Inter', sans-serif;
   }
   
-  /* Add subtle mesh gradient behind everything */
+  /* SpaceX Pure Black Background, no grid, no glow */
   body::before {
     content: '';
     position: fixed;
-    top: -50%; left: -50%; width: 200%; height: 200%;
-    background: radial-gradient(circle at 50% 50%, rgba(45, 212, 191, 0.05), transparent 60%),
-                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.05), transparent 40%);
-    z-index: -1;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #000000;
+    z-index: -2;
     pointer-events: none;
   }
-  
-  .dark body::before {
-    background: radial-gradient(circle at 50% 50%, rgba(45, 212, 191, 0.08), transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.08), transparent 40%);
-  }
 
+  /* Headings: Stark, wide, uppercase */
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Outfit', sans-serif;
+    @apply uppercase tracking-widest text-white font-medium;
   }
 }
 
 /* Hide scrollbar for a more app-like feel */
 ::-webkit-scrollbar {
-  width: 0px;
+  width: 2px;
+}
+::-webkit-scrollbar-track {
   background: transparent;
 }
+::-webkit-scrollbar-thumb {
+  @apply bg-white/20;
+}
 
+/* SpaceX Glass Panel - extremely minimal */
 .glass-panel {
-  @apply bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-white/50 dark:border-slate-700/50 shadow-sm shadow-slate-200/50 dark:shadow-none;
+  @apply bg-[#111111]/80 backdrop-blur-md border border-white/10 relative overflow-hidden rounded-none;
+}
+
+/* SpaceX Inputs - Thin borders, flat */
+input, textarea, select {
+  @apply bg-transparent border-b border-white/30 focus:border-white focus:outline-none transition-colors duration-300 rounded-none px-0 py-2;
+}
+
+/* Override Tailwind bg-primary for primary buttons to create Ghost Buttons */
+button.bg-primary {
+  @apply bg-transparent border border-white text-white hover:bg-white hover:text-black transition-all duration-300 uppercase tracking-widest font-semibold;
+}
+button.bg-slate-900 {
+  @apply bg-[#111111] border border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300 uppercase tracking-widest font-semibold;
 }

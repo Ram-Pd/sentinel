@@ -4,7 +4,7 @@ import { ShieldAlert, PhoneCall, CheckCircle2, X, Video, StopCircle } from 'luci
 import { useApp } from '../context/AppContext';
 
 export const SOSModal = () => {
-  const { isSOSTriggered, cancelSOS, contacts } = useApp();
+  const { isSOSTriggered, cancelSOS, contacts, recordSosAlert } = useApp();
   const [countdown, setCountdown] = useState(5);
   const [sosSent, setSosSent] = useState(false);
   
@@ -18,6 +18,31 @@ export const SOSModal = () => {
     if (isSOSTriggered && !sosSent && countdown > 0) {
       timer = setTimeout(() => setCountdown(countdown - 1), 1000);
     } else if (countdown === 0 && !sosSent) {
+      // Trigger the actual SOS alert and fetch location
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            const mapLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+            recordSosAlert(latitude, longitude, mapLink);
+            
+            // Generate SMS link for trusted contacts
+            const activeContacts = contacts.filter(c => c.is_tracking || c.isTracking);
+            if (activeContacts.length > 0) {
+              const phoneNumbers = activeContacts.map(c => c.phone).join(',');
+              const message = `EMERGENCY (SOS): I need help! Here is my live location: ${mapLink}`;
+              // Try to open the native SMS app
+              window.location.href = `sms:${phoneNumbers}?body=${encodeURIComponent(message)}`;
+            }
+          },
+          (error) => {
+            console.error("Error getting location:", error);
+            recordSosAlert(null, null, "Location access denied by user");
+          }
+        );
+      } else {
+        recordSosAlert(null, null, "Geolocation not supported by browser");
+      }
       setSosSent(true);
     }
     return () => clearTimeout(timer);
