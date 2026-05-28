@@ -1,12 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldAlert, PhoneCall, CheckCircle2, X } from 'lucide-react';
+import { ShieldAlert, PhoneCall, CheckCircle2, X, Video, StopCircle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export const SOSModal = () => {
   const { isSOSTriggered, cancelSOS, contacts } = useApp();
   const [countdown, setCountdown] = useState(5);
   const [sosSent, setSosSent] = useState(false);
+  
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
 
   useEffect(() => {
     let timer;
@@ -27,6 +32,60 @@ export const SOSModal = () => {
       }, 500);
     }
   }, [isSOSTriggered]);
+
+  // Clean up media tracks on unmount
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      const recorder = new MediaRecorder(stream);
+      const chunks = [];
+      
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) chunks.push(event.data);
+      };
+      
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        document.body.appendChild(a);
+        a.style = 'display: none';
+        a.href = url;
+        a.download = 'sos_evidence_recording.webm';
+        a.click();
+        window.URL.revokeObjectURL(url);
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+    } catch (error) {
+      console.error("Error accessing media devices.", error);
+      alert("Could not access camera/microphone for recording.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+    }
+    setIsRecording(false);
+  };
 
   const activeContacts = contacts.filter(c => c.isTracking);
 
@@ -106,8 +165,38 @@ export const SOSModal = () => {
                     </div>
                   </div>
 
+                  {isRecording ? (
+                    <div className="mb-6 flex flex-col items-center">
+                      <div className="relative w-full h-40 bg-black rounded-2xl overflow-hidden mb-4 border-2 border-danger shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+                        <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
+                        <div className="absolute top-3 right-3 bg-danger text-white text-xs px-2.5 py-1 rounded-full font-bold flex items-center shadow-lg">
+                          <div className="w-2 h-2 bg-white rounded-full mr-1.5 animate-ping" />
+                          REC
+                        </div>
+                      </div>
+                      <button
+                        onClick={stopRecording}
+                        className="w-full py-4 rounded-xl font-semibold bg-danger text-white hover:bg-danger/90 transition-colors flex items-center justify-center shadow-lg shadow-danger/20"
+                      >
+                        <StopCircle size={20} className="mr-2" />
+                        Stop Recording
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={startRecording}
+                      className="w-full py-4 rounded-xl font-semibold bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors flex items-center justify-center mb-4 shadow-xl"
+                    >
+                      <Video size={20} className="mr-2" />
+                      Record Evidence
+                    </button>
+                  )}
+
                   <button
-                    onClick={cancelSOS}
+                    onClick={() => {
+                      if (isRecording) stopRecording();
+                      cancelSOS();
+                    }}
                     className="w-full py-4 rounded-xl font-semibold bg-danger/10 text-danger hover:bg-danger/20 transition-colors flex items-center justify-center"
                   >
                     <X size={20} className="mr-2" />

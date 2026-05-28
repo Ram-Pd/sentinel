@@ -79,7 +79,7 @@ export const Dashboard = () => {
             <div className="bg-white/20 p-3 rounded-full flex items-center justify-center">
               <span className="text-xl font-bold">100</span>
             </div>
-            <span className="text-sm font-bold">Call Police</span>
+            <span className="text-sm font-bold text-center">Call nearby police station</span>
           </motion.button>
         </div>
       </div>
