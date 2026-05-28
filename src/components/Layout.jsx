@@ -21,7 +21,7 @@ export const Layout = () => {
   ];
 
   return (
-    <div className="flex flex-col h-screen max-w-md mx-auto overflow-hidden bg-slate-50 dark:bg-slate-950 shadow-2xl sm:rounded-3xl sm:h-[90vh] sm:mt-[5vh] relative border border-slate-200 dark:border-slate-800">
+    <div className="flex flex-col h-[100dvh] max-w-md mx-auto overflow-hidden bg-slate-50 dark:bg-slate-950 shadow-2xl sm:rounded-3xl sm:h-[90vh] sm:mt-[5vh] relative border border-slate-200 dark:border-slate-800">
       
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto pb-20 no-scrollbar relative">
